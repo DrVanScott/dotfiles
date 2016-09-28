@@ -334,8 +334,8 @@ if &t_Co > 2 || has("gui_running")
 
   " Visual line marking 80 characters (vim 7.3).
   if v:version >= 703
-    set textwidth=80
-    set colorcolumn=+1
+    "set textwidth=80
+    "set colorcolumn=+1
   endif
 
   " Enable coloring for dark background terminals.
