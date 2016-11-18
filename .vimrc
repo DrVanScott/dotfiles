@@ -594,6 +594,12 @@ if has("autocmd")
   " css - preprocessor
   au BufRead,BufNewFile *.less,*.scss,*.sass       set filetype=css syntax=css
 
+  " gnuplot
+  au BufRead,BufNewFile *.plt                      set filetype=gnuplot
+
+  " C++
+  au BufRead,BufNewFile *.cpp                      set filetype=cpp
+
   " markdown
   au BufRead,BufNewFile *.md,*.markdown,*.ronn     set filetype=markdown
 
@@ -627,8 +633,16 @@ if has("autocmd")
   " allow tabs on makefiles
   au FileType make                   setlocal noexpandtab
   au FileType go                     setlocal noexpandtab
-endif
 
+
+  " set makeprg(depends on filetype) if makefile is not exist
+  if !filereadable('makefile') && !filereadable('Makefile')
+    au FileType c                    setlocal makeprg=gcc\ %\ -o\ %<
+    au FileType cpp                  setlocal makeprg=g++\ %\ -o\ %<
+    au FileType sh                   setlocal makeprg=bash\ -n\ %
+    au FileType php                  setlocal makeprg=php\ -l\ %
+  endif
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => Editing mappings
@@ -682,10 +696,8 @@ if has("mac") || has("macunix")
   vmap <D-k> <M-k>
 endif
 
-" Quickfix mappings.
-map <F7>  :cn<CR>
-map <S-F7> :cp<CR>
-map <A-F7> :copen<CR>
+" map F7 to syntax-check
+map <F7> :make <CR>
 
 " Emacs movement keybindings in insert mode.
 "
@@ -701,6 +713,7 @@ nmap K <nop>
 
 inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
 
+" strip whitespace (,sw)
 noremap <leader>sw :call StripWhitespace()<CR>
 " save a file as root (,W)
 noremap <leader>W :w !sudo tee % > /dev/null<CR>

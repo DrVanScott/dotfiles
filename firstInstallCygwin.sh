@@ -14,7 +14,6 @@ function ask_install() {
   else
     return 0
   fi
-
 }
 
 # use apt-cyg in the next steps ...
