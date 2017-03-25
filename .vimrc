@@ -32,22 +32,6 @@
 " => General
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" Simulate ALT-<key> by mapping escape sequences to key combination. This is
-" required for terminals which do not send ALT combinations in 8-bit. This
-" applies also to cygwin's mintty.
-"
-" See http://stackoverflow.com/questions/6778961/alt-key-shortcuts-not-working-on-gnome-terminal-with-vim/10216459#10216459
-"
-let c='a'
-while c <= 'z'
-  exec "set <A-".c.">=\e".c
-  exec "imap \e".c." <A-".c.">"
-  let c = nr2char(1+char2nr(c))
-endw
-
-" Timeout to distinguish e.g. <A-k> from 'ESC <timeout> k'
-set ttimeout ttimeoutlen=25
-
 " Make Vim more useful.
 set nocompatible
 
@@ -676,10 +660,10 @@ nmap <Leader>h :TOhtml<CR>:w<cr>:!open %<CR>:q<CR>
 map <Leader>a ggVG
 
 " Move a line of text using ALT+[jk] or Comamnd+[jk] on mac.
-nmap <M-j> mz:m+<cr>`z
-nmap <M-k> mz:m-2<cr>`z
-vmap <M-j> :m'>+<cr>`<my`>mzgv`yo`z
-vmap <M-k> :m'<-2<cr>`>my`<mzgv`yo`z
+nmap <c-s-Down> mz:m+<cr>`z
+nmap <c-s-Up>   mz:m-2<cr>`z
+vmap <c-s-Down> :m'>+<cr>`<my`>mzgv`yo`z
+vmap <c-s-Up>   :m'<-2<cr>`>my`<mzgv`yo`z
 
 " Copy between different vim sessions.
 "
@@ -690,10 +674,10 @@ vmap <M-k> :m'<-2<cr>`>my`<mzgv`yo`z
 "nmap <s-P> :r ~/.vim/tmp<CR>
 
 if has("mac") || has("macunix")
-  nmap <D-j> <M-j>
-  nmap <D-k> <M-k>
-  vmap <D-j> <M-j>
-  vmap <D-k> <M-k>
+  nmap <D-j> <c-s-Down>
+  nmap <D-k> <c-s-Up>
+  vmap <D-j> <c-s-Down>
+  vmap <D-k> <c-s-Up>
 endif
 
 " map F7 to syntax-check
