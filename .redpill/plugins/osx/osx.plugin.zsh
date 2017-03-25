@@ -314,7 +314,7 @@ function spotify() {
         position=$(osascript -e 'tell application "Spotify" to player position as string' | tr ',' '.');
         position=$(echo "scale=2; $position / 60" | bc | awk '{printf "%0.2f", $0}');
 
-        printf "$reset""Artist: %s\nAlbum: %s\nTrack: %s \nPosition: %s / %s" "$artist" "$album" "$track" "$position" "$duration";
+        printf "$reset""Artist: %s\nAlbum: %s\nTrack: %s \nPosition: %s / %s\n" "$artist" "$album" "$track" "$position" "$duration";
       fi
   }
 
@@ -323,7 +323,7 @@ function spotify() {
   if [ $# = 0 ]; then
     showHelp;
   else
-    if [ "$(osascript -e 'application "Spotify" is running')" = "false" ]; then
+    if [ "$1" != "quit" ] && [ "$(osascript -e 'application "Spotify" is running')" = "false" ]; then
       osascript -e 'tell application "Spotify" to activate'
       sleep 2
     fi
@@ -412,17 +412,21 @@ function spotify() {
         osascript -e 'tell application "Spotify" to playpause';
         break ;;
 
-      "quit"    ) 
-        cecho "Quitting Spotify.";
-        osascript -e 'tell application "Spotify" to quit';
-        exit 1 ;;
+      "quit"    )
+        if [ "$(osascript -e 'application "Spotify" is running')" = "false" ]; then
+          cecho "Spotify was not running."
+        else
+          cecho "Closing Spotify.";
+          osascript -e 'tell application "Spotify" to quit';
+        fi
+        break ;;
 
-      "next"    ) 
+      "next"    )
         cecho "Going to next track." ;
         osascript -e 'tell application "Spotify" to next track';
         break ;;
 
-      "prev"    ) 
+      "prev"    )
         cecho "Going to previous track.";
         osascript -e 'tell application "Spotify" to previous track';
         break ;;
@@ -470,7 +474,7 @@ function spotify() {
       "pos"   )
         cecho "Adjusting Spotify play position."
         osascript -e "tell application \"Spotify\" to set player position to $2";
-        break;;
+        break ;;
 
       "status" )
         showStatus;

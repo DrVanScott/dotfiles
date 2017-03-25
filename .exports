@@ -123,6 +123,11 @@ export HISTCONTROL=$HISTCONTROL${HISTCONTROL+:}ignoredups
 # make some commands not show up in history
 export HISTIGNORE=${HISTIGNORE:-"shutdown*:halt*:poweroff*:hibernate*:rm -rf*"}
 
+# ignorespace	| don't save lines which begin with a <space> character
+# ignoredups	| don't save lines matching the previous history entry
+# ignoreboth	| use both 'ignorespace' and 'ignoredups'
+# erasedups	  | eliminate duplicates across the whole history
+
 # add the date to the historylog
 #
 # Keep track of the time the commands were executed.
@@ -214,9 +219,7 @@ export LESSHISTFILE="-"     # no less history file
 if [ "$UID" != 0 ]; then
     export LESSCHARSET=${LESSCHARSET:-"utf-8"}
 
-    if [ -z "$LESSOPEN" ]; then
-      [ -x "`which lesspipe 2>/dev/null`" ] && eval "$(lesspipe)"
-    fi
+    [ -x "`which lesspipe 2>/dev/null`" ] && eval "$(lesspipe)"
 
     # yep, 'less' can colorize manpages
     export LESS_TERMCAP_mb=$'\E[01;31m'

@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+CLOCK_CHAR_THEME_PROMPT_PREFIX=''
+CLOCK_CHAR_THEME_PROMPT_SUFFIX=''
+CLOCK_THEME_PROMPT_PREFIX=''
+CLOCK_THEME_PROMPT_SUFFIX=''
+
 THEME_PROMPT_HOST='\H'
 
 SCM_CHECK=${SCM_CHECK:=true}
@@ -16,14 +21,13 @@ SCM_THEME_BRANCH_GONE_PREFIX=' ⇢ '
 SCM_THEME_CURRENT_USER_PREFFIX=' ☺︎ '
 SCM_THEME_CURRENT_USER_SUFFIX=''
 
-CLOCK_CHAR='☆'
-THEME_CLOCK_CHECK=${THEME_CLOCK_CHECK:=true}
 THEME_BATTERY_PERCENTAGE_CHECK=${THEME_BATTERY_PERCENTAGE_CHECK:=true}
 
 SCM_GIT_SHOW_DETAILS=${SCM_GIT_SHOW_DETAILS:=true}
 SCM_GIT_SHOW_REMOTE_INFO=${SCM_GIT_SHOW_REMOTE_INFO:=auto}
 SCM_GIT_IGNORE_UNTRACKED=${SCM_GIT_IGNORE_UNTRACKED:=false}
 SCM_GIT_SHOW_CURRENT_USER=${SCM_GIT_SHOW_CURRENT_USER:=false}
+SCM_GIT_SHOW_MINIMAL_INFO=${SCM_GIT_SHOW_MINIMAL_INFO:=false}
 
 SCM_GIT='git'
 SCM_GIT_CHAR='±'
@@ -90,9 +94,49 @@ function scm_prompt_info {
   scm_prompt_char
   SCM_DIRTY=0
   SCM_STATE=''
-  [[ $SCM == $SCM_GIT ]] && git_prompt_info && return
-  [[ $SCM == $SCM_HG ]] && hg_prompt_info && return
-  [[ $SCM == $SCM_SVN ]] && svn_prompt_info && return
+
+  if [[ ${SCM} == ${SCM_GIT} ]]; then
+    if [[ ${SCM_GIT_SHOW_MINIMAL_INFO} == true ]]; then
+      # user requests minimal git status information
+      git_prompt_minimal_info
+    else
+      # more detailed git status
+      git_prompt_info
+    fi
+    return
+  fi
+
+  # TODO: consider adding minimal status information for hg and svn
+  [[ ${SCM} == ${SCM_HG} ]] && hg_prompt_info && return
+  [[ ${SCM} == ${SCM_SVN} ]] && svn_prompt_info && return
+}
+
+function git_prompt_minimal_info {
+  local ref
+  local status
+  local git_status_flags=('--porcelain')
+  SCM_STATE=${SCM_THEME_PROMPT_CLEAN}
+
+  if [[ "$(command git config --get bash-it.hide-status)" != "1" ]]; then
+    # Get the branch reference
+    ref=$(command git symbolic-ref -q HEAD 2> /dev/null) || \
+    ref=$(command git rev-parse --short HEAD 2> /dev/null) || return 0
+    SCM_BRANCH=${SCM_THEME_BRANCH_PREFIX}${ref#refs/heads/}
+
+    # Get the status
+    [[ "${SCM_GIT_IGNORE_UNTRACKED}" = "true" ]] && git_status_flags+='-untracked-files=no'
+    status=$(command git status ${git_status_flags} 2> /dev/null | tail -n1)
+
+    if [[ -n ${status} ]]; then
+      SCM_DIRTY=1
+      SCM_STATE=${SCM_THEME_PROMPT_DIRTY}
+    fi
+
+    # Output the git prompt
+    SCM_PREFIX=${SCM_THEME_PROMPT_PREFIX}
+    SCM_SUFFIX=${SCM_THEME_PROMPT_SUFFIX}
+    echo -e "${SCM_PREFIX}${SCM_BRANCH}${SCM_STATE}${SCM_SUFFIX}"
+  fi
 }
 
 function git_status_summary {
@@ -345,6 +389,28 @@ function git_user_info {
   [[ -n "${SCM_CURRENT_USER}" ]] && printf "%s" "$SCM_THEME_CURRENT_USER_PREFFIX$SCM_CURRENT_USER$SCM_THEME_CURRENT_USER_SUFFIX"
 }
 
+function clock_char {
+  CLOCK_CHAR=${THEME_CLOCK_CHAR:-"⌚"}
+  CLOCK_CHAR_COLOR=${THEME_CLOCK_CHAR_COLOR:-"$normal"}
+  SHOW_CLOCK_CHAR=${THEME_SHOW_CLOCK_CHAR:-"true"}
+
+  if [[ "${SHOW_CLOCK_CHAR}" = "true" ]]; then
+    echo -e "${CLOCK_CHAR_COLOR}${CLOCK_CHAR_THEME_PROMPT_PREFIX}${CLOCK_CHAR}${CLOCK_CHAR_THEME_PROMPT_SUFFIX}"
+  fi
+}
+
+function clock_prompt {
+  CLOCK_COLOR=${THEME_CLOCK_COLOR:-"$normal"}
+  CLOCK_FORMAT=${THEME_CLOCK_FORMAT:-"%H:%M:%S"}
+  [ -z $THEME_SHOW_CLOCK ] && THEME_SHOW_CLOCK=${THEME_CLOCK_CHECK:-"true"}
+  SHOW_CLOCK=$THEME_SHOW_CLOCK
+
+  if [[ "${SHOW_CLOCK}" = "true" ]]; then
+    CLOCK_STRING=$(date +"${CLOCK_FORMAT}")
+    echo -e "${CLOCK_COLOR}${CLOCK_THEME_PROMPT_PREFIX}${CLOCK_STRING}${CLOCK_THEME_PROMPT_SUFFIX}"
+  fi
+}
+
 # backwards-compatibility
 function git_prompt_info {
   git_prompt_vars
@@ -368,13 +434,6 @@ function scm_char {
 
 function prompt_char {
     scm_char
-}
-
-function clock_char {
-    if [[ "${THEME_CLOCK_CHECK}" = true ]]; then
-        DATE_STRING=$(date +"%Y-%m-%d %H:%M:%S")
-        echo -e "${bold_cyan}$DATE_STRING ${red}$CLOCK_CHAR"
-    fi
 }
 
 function battery_char {

@@ -68,9 +68,11 @@ alias vimrc="vim ~/.vimrc"
 alias reload_bash_profile='source ~/.bash_profile'
 alias reload_zsh_profile='source ~/.zprofile'
 
-# Reload the shell (i.e. invoke as a login shell)
+# reload the shell (i.e. invoke as a login shell)
 alias reload="exec $SHELL -l"
 
+# Print each PATH entry on a separate line
+alias path="echo -e ${PATH//:/\\n}"
 
 # ------------------------------------------------------------------------------
 # | Navigation                                                                 |

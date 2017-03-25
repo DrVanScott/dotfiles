@@ -71,7 +71,7 @@ do_png()
     if [ $quality ]; then
       pngquant --quality=${quality} "$tmpfile"
     else
-      pngquant --quality=75-100 "$tmpfile"
+      pngquant --quality=70-100 "$tmpfile"
     fi
     outfile="${tmpfile::$((${#tmpfile}-4))}-fs8${tmpfile:$((${#tmpfile}-4))}"
     pngs[${#pngs[@]}]="$outfile"
@@ -135,7 +135,7 @@ search_quality()
 
       local tmpfile_new=$(mktemp);
       cp -p $src $tmpfile_new
-      jpegtran -copy none "$tmpfile_new" > "$src"
+      jpegtran -progressive -copy none "$tmpfile_new" > "$src"
       rm $tmpfile_new;
     fi
   fi
@@ -143,9 +143,9 @@ search_quality()
   if [ $quality ]; then
     if [ ".jpeg" = ${src_ext:(-5)} ] || [ ".jpg" = ${src_ext:(-4)} ]; then
       convert $src TGA:- |
-        cjpeg -quality $quality -sample 1x1 -outfile $tmpfile -targa
+        cjpeg -progressive -quality $quality -sample 1x1 -outfile $tmpfile -targa
     else
-      convert -quality $quality $src $tmpfile
+      convert -interlace -quality $quality $src $tmpfile
     fi
 
     return 1
@@ -165,9 +165,9 @@ search_quality()
 
     if [ ".jpeg" = ${src_ext:(-5)} ] || [ ".jpg" = ${src_ext:(-4)} ]; then
       convert $src TGA:- |
-        cjpeg -quality $q -sample 1x1 -outfile $tmpfile -targa
+        cjpeg -progressive -quality $q -sample 1x1 -outfile $tmpfile -targa
     else
-      convert -quality $q $src $tmpfile
+      convert -interlace -quality $q $src $tmpfile
     fi
 
     cmppct=`compare -metric RMSE $src $tmpfile /dev/null 2>&1 \
@@ -206,7 +206,7 @@ check_image_stats()
 
       local tmpfile_new=$(mktemp);
       cp -p $src $tmpfile_new
-      jpegtran -copy none "$tmpfile_new" > "$tmpfile"
+      jpegtran -progressive -copy none "$tmpfile_new" > "$tmpfile"
       rm $tmpfile_new;
     fi
 
