@@ -1,0 +1,41 @@
+#!/bin/bash
+
+function info {
+  echo -e "${COLOR_YELLOW}${*}${COLOR_NO_COLOUR}"
+}
+
+function error {
+  echo -e "${COLOR_RED}${*}${COLOR_NO_COLOUR}"
+}
+
+MOD=$(date +%Y%m%d -r "$HOME/.dotfilecheck")
+CUR=$(date +%Y%m%d)
+
+if [[ ${MOD} != "${CUR}" ]]; then
+  touch "$HOME/.dotfilecheck"
+
+  if [[ -z $DOTFILESSRCDIR ]]; then
+    error "DOTFILESSRCDIR not set. It must point to the git based source directory of dotfiles"
+  else
+    (
+      cd "$DOTFILESSRCDIR"
+
+      git remote update > /dev/null 2>&1
+
+      UPSTREAM=${1:-'@{u}'}
+      LOCAL=$(git rev-parse @)
+      REMOTE=$(git rev-parse "$UPSTREAM")
+      BASE=$(git merge-base @ "$UPSTREAM")
+
+      if [ $LOCAL = $REMOTE ]; then
+        :
+      elif [ $LOCAL = $BASE ]; then
+        info "Dotfiles may need a pull?"
+      elif [ $REMOTE = $BASE ]; then
+        info "Dotfiles may need a push?"
+      else
+        info "Dotfiles may need pull & push?"
+      fi
+    )
+  fi
+fi
