@@ -1,4 +1,8 @@
+# Define this here so it can be used by all of the Powerline themes
+THEME_CHECK_SUDO=${THEME_CHECK_SUDO:=true}
+
 function set_color {
+  set +u
   if [[ "${1}" != "-" ]]; then
     fg="38;5;${1}"
   fi
@@ -13,18 +17,21 @@ function __powerline_user_info_prompt {
   local user_info=""
   local color=${USER_INFO_THEME_PROMPT_COLOR}
 
-  if sudo -n uptime 2>&1 | grep -q "load"; then
-    color=${USER_INFO_THEME_PROMPT_COLOR_SUDO}
+  if [[ "${THEME_CHECK_SUDO}" = true ]]; then
+    if sudo -n uptime 2>&1 | grep -q "load"; then
+      color=${USER_INFO_THEME_PROMPT_COLOR_SUDO}
+    fi
   fi
+
   case "${POWERLINE_PROMPT_USER_INFO_MODE}" in
     "sudo")
-      if [[ "${color}" == "${USER_INFO_THEME_PROMPT_COLOR_SUDO}" ]]; then
+      if [[ "${color}" = "${USER_INFO_THEME_PROMPT_COLOR_SUDO}" ]]; then
         user_info="!"
       fi
       ;;
     *)
-      if [[ -n "${SSH_CLIENT}" ]]; then
-        user_info="${USER_INFO_SSH_CHAR}${USER}@${HOSTNAME}"
+      if [[ -n "${SSH_CLIENT}" ]] || [[ -n "${SSH_CONNECTION}" ]]; then
+        user_info="${USER_INFO_SSH_CHAR}${USER}"
       else
         user_info="${USER}"
       fi
@@ -46,6 +53,7 @@ function __powerline_ruby_prompt {
 }
 
 function __powerline_python_venv_prompt {
+  set +u
   local python_venv=""
 
   if [[ -n "${CONDA_DEFAULT_ENV}" ]]; then
@@ -82,7 +90,17 @@ function __powerline_scm_prompt {
 }
 
 function __powerline_cwd_prompt {
-  echo "$(pwd | sed "s|^${HOME}|~|")|${CWD_THEME_PROMPT_COLOR}"
+  local cwd=$(pwd | sed "s|^${HOME}|~|")
+
+  echo "${cwd}|${CWD_THEME_PROMPT_COLOR}"
+}
+
+function __powerline_hostname_prompt {
+    echo "$(hostname -s)|${HOST_THEME_PROMPT_COLOR}"
+}
+
+function __powerline_wd_prompt {
+  echo "\W|${CWD_THEME_PROMPT_COLOR}"
 }
 
 function __powerline_clock_prompt {
@@ -141,11 +159,17 @@ function __powerline_prompt_command {
   SEGMENTS_AT_LEFT=0
   LAST_SEGMENT_COLOR=""
 
+
+  if [[ -n "${POWERLINE_PROMPT_DISTRO_LOGO}" ]]; then
+      LEFT_PROMPT+="$(set_color ${PROMPT_DISTRO_LOGO_COLOR} ${PROMPT_DISTRO_LOGO_COLORBG})${PROMPT_DISTRO_LOGO}$(set_color - -)"
+  fi
+
   ## left prompt ##
   for segment in $POWERLINE_PROMPT; do
     local info="$(__powerline_${segment}_prompt)"
     [[ -n "${info}" ]] && __powerline_left_segment "${info}"
   done
+
   [[ "${last_status}" -ne 0 ]] && __powerline_left_segment $(__powerline_last_status_prompt ${last_status})
   [[ -n "${LEFT_PROMPT}" ]] && LEFT_PROMPT+="$(set_color ${LAST_SEGMENT_COLOR} -)${separator_char}${normal}"
 
@@ -156,3 +180,4 @@ function __powerline_prompt_command {
         LEFT_PROMPT \
         SEGMENTS_AT_LEFT
 }
+

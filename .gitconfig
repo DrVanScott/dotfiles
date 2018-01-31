@@ -40,6 +40,9 @@
   # tree and add them to the index.
   ap = add --patch
 
+  # List aliases
+  aliases = config --get-regexp alias
+
   # Amend the currently staged files to the last commit
   # See`git help commit`
   amend = commit --amend --reuse-message=HEAD
@@ -107,6 +110,9 @@
 
   # `git diff-to-x-commit $number` shows the diff between the state `$number` revisions ago and the current state
   diff-to-x-commit = "!d() { git diff --patch-with-stat HEAD~$1; }; git diff-index --quiet HEAD -- || clear; d"
+
+  # Pull in remote changes for the current repository and all its submodules
+  p = !"git pull; git submodule foreach git pull origin master"
 
   # Remove branches that have already been merged with master
   # a.k.a. delete merged
@@ -218,7 +224,7 @@
   # View the current working tree status using the short format
   # Show the current branch as well
   # See`git help status`
-  s = status                        # status
+  s = status -s                     # status
   st = status                       # status
   stat = status                     # status
 
@@ -266,9 +272,9 @@
 [color "diff"]
   # Yellow meta; Magenta line info; Red for deleltions; Green for additions.
   meta = yellow
-  frag = magenta
-  old = red
-  new = green
+  frag = magenta              # line info
+  old = red                   # deletions
+  new = green                 # additions
   whitespace = red reverse
 
 [color "status"]
@@ -300,13 +306,21 @@
 
   # Prevent showing files whose names contain non-ASCII symbols as unversioned.
   # http://michael-kuehnel.de/git/2014/11/21/git-mac-osx-and-german-umlaute.html
-  htmlprecomposeunicode = false
+  precomposeunicode = false
+
+  # Speed up commands involving untracked files such as `git status`.
+  # https://git-scm.com/docs/git-update-index#_untracked_cache
+  untrackedCache = true
 
   # Treat
   #  - spaces before tabs,
   #  - all kinds of trailing whitespace
   # as an error.
   whitespace = space-before-tab,-indent-with-non-tab,trailing-space
+
+  # Make `git rebase` safer on macOS
+  # More info: <http://www.git-tower.com/blog/make-git-rebase-safe-on-osx/>
+  trustctime = false
 
   # https://stackoverflow.com/questions/18257622/why-is-git-core-preloadindex-default-value-false/18259086
   preloadindex = true

@@ -117,7 +117,7 @@ ${D_BRANCH_COLOR}%b %r ${D_CHANGES_COLOR}%m%u ${D_DEFAULT_COLOR}"
 
 # checks if the plugin is installed before calling battery_charge
 safe_battery_charge() {
-  if [ -e "${REDPILL}/plugins/enabled/battery.plugin.bash" ];
+  if command_exists battery_charge ;
   then
     battery_charge
   fi

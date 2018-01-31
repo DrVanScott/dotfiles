@@ -586,6 +586,13 @@ os-info()
 }
 
 # -------------------------------------------------------------------
+# command_exists: check if a command exists
+command_exists()
+{
+    return type "$1" &> /dev/null ;
+}
+
+# -------------------------------------------------------------------
 # stripspace: strip unnecessary whitespace from file
 stripspace()
 {
@@ -726,9 +733,24 @@ mkf()
 }
 
 # -------------------------------------------------------------------
+# rand_int: use "urandom" to get random int values
+#
+# usage: rand_int 8 --> e.g.: 32245321
+rand_int()
+{
+  if [ $1 ]; then
+    local length=$1
+  else
+    local length=16
+  fi
+
+  tr -dc 0-9 < /dev/urandom  | head -c${1:-${length}}
+}
+
+# -------------------------------------------------------------------
 # passwdgen: a password generator
 #
-# usage: passwdgen 8
+# usage: passwdgen 8 --> e.g.: f4lwka_2f
 passwdgen()
 {
   if [ $1 ]; then
@@ -1290,22 +1312,42 @@ v()
 # location
 o()
 {
-  local openCommand=""
+  local open_command=""
 
-  // TODO: use "open_command()" from "dotfiles\.redpill\lib\3_functions.zsh" for ZSH
-
-  if xdg-open --version /dev/null > /dev/null 2>&1; then
-    openCommand=xdg-open
+  if gnome-open --version /dev/null > /dev/null 2>&1; then
+    # GNOME
+    open_command='gnome-open'
+  elif exo-open --version /dev/null > /dev/null 2>&1; then
+    # Xfce
+    open_command='exo-open'
+  elif kde-open --version /dev/null > /dev/null 2>&1; then
+    # KDE
+    open_command='kde-open'
+  elif xdg-open --version /dev/null > /dev/null 2>&1; then
+    # Linux
+    open_command='xdg-open'
   elif open --version /dev/null > /dev/null 2>&1; then
-    openCommand=open
+    # Mac OS
+    open_command='open'
   elif cygstart --version /dev/null > /dev/null 2>&1; then
-    openCommand=cygstart
+    # Cygwin
+    open_command='cygstart'
+  elif [[ $SYSTEM_TYPE == "MINGW" ]]; then
+    # MinGW
+    open_command='start ""'
   fi
 
   if [ $# -eq 0 ]; then
-    $openCommand .
+    open_command_path="."
   else
-    $openCommand "$@"
+    open_command_path="$@"
+  fi
+
+  # don't use nohup on OSX
+  if [[ "$SYSTEM_TYPE" == "OSX" ]]; then
+    $open_command $open_command_path &>/dev/null
+  else
+    nohup $open_command $open_command_path &>/dev/null
   fi
 }
 

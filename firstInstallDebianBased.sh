@@ -93,6 +93,8 @@ aptitude install \
   ngrep \
   `# interactive processes viewer` \
   htop \
+  `# mysql processes viewer` \
+  mytop \
   `# interactive I/O viewer` \
   iotop \
   tree \

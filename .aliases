@@ -178,10 +178,10 @@ if [ "$TERM" != "dumb" ]; then
     alias difflight="colordiff"
   elif command -v highlight > /dev/null; then
     alias difflight="highlight --dark-red ^-.* \
-    	| highlight --dark-green ^+.* \
-    	| highlight --yellow ^Only.* \
-    	| highlight --yellow ^Files.*differ$ \
-    	| less -XFIRd"
+      | highlight --dark-green ^+.* \
+      | highlight --yellow ^Only.* \
+      | highlight --yellow ^Files.*differ$ \
+      | less -XFIRd"
   else
     alias difflight="less -XFIRd"
   fi
@@ -236,6 +236,8 @@ fi
 
 # list all files colorized in long format
 alias l="ls -lhF $COLORFLAG"
+# list all files with directories
+alias ldir="l -R"
 # Show hidden files
 alias l.="ls -dlhF .* $COLORFLAG"
 alias ldot="l."
@@ -245,6 +247,8 @@ alias ls="ls -F $COLORFLAG"
 alias l1="ls -1 $COLORFLAG"
 # displays all files and directories in detail
 alias la="ls -laFh $COLORFLAG"
+# displays all files and directories in detail (without "." and without "..")
+alias lA="ls -lAFh $COLORFLAG"
 alias lsa="la"
 # displays all files and directories in detail with newest-files at bottom
 alias lr="ls -laFhtr $COLORFLAG"

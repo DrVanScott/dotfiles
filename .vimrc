@@ -590,7 +590,6 @@ if has("autocmd")
   " special text files
   au BufRead,BufNewFile *.rtxt         set filetype=html spell
   au BufRead,BufNewFile *.stxt         set filetype=markdown spell
-  au BufNewFile,BufRead COMMIT_EDITMSG setlocal spell
 
   au BufRead,BufNewFile *.sql        set filetype=pgsql
 
@@ -603,21 +602,25 @@ if has("autocmd")
   " aura cmp files
   au BufRead,BufNewFile *.cmp        set filetype=html
 
+  " JavaScript
+  au BufNewFile,BufRead *.es5        set filetype=javascript
+  au BufNewFile,BufRead *.es6        set filetype=javascript
+  au BufRead,BufNewFile *.hbs        set syntax=handlebars
+  au BufRead,BufNewFile *.mustache   set filetype=mustache
   au BufRead,BufNewFile *.json       set filetype=json syntax=javascript
 
-  au BufRead,BufNewFile *.hbs        set syntax=handlebars
-
-  au BufRead,BufNewFile *.mustache   set filetype=mustache
-
+  " zsh
   au BufRead,BufNewFile *.zsh-theme  set filetype=zsh
 
-  au Filetype gitcommit              set tw=68 spell fo+=t
+  au Filetype gitcommit                setlocal tw=68 spell fo+=t nosi
+  au BufNewFile,BufRead COMMIT_EDITMSG setlocal tw=68 spell fo+=t nosi
+
+  " ruby
   au Filetype ruby                   set tw=80
 
   " allow tabs on makefiles
   au FileType make                   setlocal noexpandtab
   au FileType go                     setlocal noexpandtab
-
 
   " set makeprg(depends on filetype) if makefile is not exist
   if !filereadable('makefile') && !filereadable('Makefile')

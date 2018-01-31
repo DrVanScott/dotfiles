@@ -14,7 +14,7 @@ git_prompt_info()
 parse_git_dirty()
 {
   local STATUS=''
-  local FLAGS
+  local -a FLAGS
 
   FLAGS=('--porcelain')
   if [[ "$(command git config --get red-pill.hide-dirty)" != "1" ]]; then
@@ -155,10 +155,14 @@ git_prompt_status()
     STATUS="$ZSH_THEME_GIT_PROMPT_ADDED$STATUS"
   elif $(echo "$INDEX" | grep '^M  ' &> /dev/null); then
     STATUS="$ZSH_THEME_GIT_PROMPT_ADDED$STATUS"
+  elif $(echo "$INDEX" | grep '^MM ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_ADDED$STATUS"
   fi
   if $(echo "$INDEX" | grep '^ M ' &> /dev/null); then
     STATUS="$ZSH_THEME_GIT_PROMPT_MODIFIED$STATUS"
   elif $(echo "$INDEX" | grep '^AM ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_MODIFIED$STATUS"
+  elif $(echo "$INDEX" | grep '^MM ' &> /dev/null); then
     STATUS="$ZSH_THEME_GIT_PROMPT_MODIFIED$STATUS"
   elif $(echo "$INDEX" | grep '^ T ' &> /dev/null); then
     STATUS="$ZSH_THEME_GIT_PROMPT_MODIFIED$STATUS"
@@ -212,6 +216,18 @@ git_compare_version()
     fi
   done
   echo 0
+}
+
+# Outputs the name of the current user
+# Usage example: $(git_current_user_name)
+function git_current_user_name() {
+  command git config user.name 2>/dev/null
+}
+
+# Outputs the email of the current user
+# Usage example: $(git_current_user_email)
+function git_current_user_email() {
+  command git config user.email 2>/dev/null
 }
 
 # This is unlikely to change so make it all statically assigned

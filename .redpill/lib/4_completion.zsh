@@ -10,11 +10,11 @@ WORDCHARS='*?_-.[]~&;!#$%^(){}<>'
 zstyle ':completion:*' accept-exact '*(N)'
 
 # highlight matching part of available completions
-zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:default' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' list-colors  'reply=( "=(#b)(*$PREFIX)(?)*=00=$color[green]=$color[bg-green]" )'
 zstyle ':completion:*' select-prompt %SScrolling active: current selection at %P Lines: %m
 zstyle ':completion:*:corrections' format $'%{\e[0;31m%}%d (errors: %e)%}'
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*:*:*:*:hosts' list-colors '=*=30;41'
 zstyle ':completion:*:*:*:*:users' list-colors '=*=34;47'
 

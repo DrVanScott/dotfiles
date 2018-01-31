@@ -87,7 +87,7 @@ try_alias_value()
 # Set variable "$1" to default value "$2" if "$1" is not yet defined.
 #
 # Arguments:
-#    0. name - The variable to set
+#    1. name - The variable to set
 #    2. val  - The default value
 # Return value:
 #    0 if the variable exists, 3 if it was set
@@ -99,7 +99,7 @@ default()
 }
 
 #
-# Set enviroment variable "$1" to default value "$2" if "$1" is not yet defined.
+# Set environment variable "$1" to default value "$2" if "$1" is not yet defined.
 #
 # Arguments:
 #    1. name - The env variable to set
@@ -111,6 +111,10 @@ env_default() {
   env | grep -q "^$1=" && return 0
   export "$1=$2"       && return 3
 }
+
+
+# Required for $langinfo
+zmodload zsh/langinfo
 
 # URL-encode a string
 #
@@ -240,4 +244,3 @@ omz_urldecode()
 
   echo -E "$decoded"
 }
-
