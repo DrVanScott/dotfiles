@@ -79,3 +79,5 @@ if [ -d $HOME/.redpill ]; then
 
   source $HOME/.redpill/redpill-init-bash.sh
 fi
+
+[[ -f ~/.extra_final ]] && . ~/.extra_final
