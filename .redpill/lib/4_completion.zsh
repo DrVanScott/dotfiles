@@ -179,6 +179,9 @@ else
 fi
 unset CASE_SENSITIVE HYPHEN_INSENSITIVE
 
+# complete . and .. special directories
+zstyle ':completion:*' special-dirs true
+
 # don't complete backup files as executables
 zstyle ':completion:*:complete:-command-::commands' ignored-patterns '*\~'
 

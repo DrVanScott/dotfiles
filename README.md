@@ -1,4 +1,6 @@
-# dotfiles for Bash / ZSH / Git Bash (Windows) / Cygwin (Windows) / Bash on Ubuntu on Windows
+# :bookmark_tabs:  .dotfiles 
+
+... for Bash / ZSH / Git Bash (Windows) / Cygwin (Windows) / Bash on Ubuntu on Windows
 
 --> [Screenshots & Screencasts](https://github.com/voku/dotfiles/wiki/Images)
 
@@ -35,7 +37,7 @@ If `~/.config_dotfiles` does not exists, the "bootstrap.sh"-script will create a
 My `~/.config_dotfiles` looks something like this:
 
 ```bash
-#!/bin/bash
+#!/bin/sh
 
 CONFIG_DEFAULT_USER="lars"
 CONFIG_ZSH_PLUGINS="(git zsh-completions zsh-syntax-highlighting)"
@@ -53,9 +55,9 @@ If `~/.extra` exists, it will be sourced along with the other files. You can use
 My `~/.extra` looks something like this:
 
 ```bash
-#!/bin/bash
+#!/bin/sh
 
-DOTFILESSRCDIR="/home/lmoelleken/dotfiles/"
+export DOTFILESSRCDIR="/home/lmoelleken/dotfiles/"
 
 GIT_AUTHOR_NAME="Lars Moelleken"
 GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
@@ -70,6 +72,14 @@ git config --file=$HOME/.gitconfig.extra push.default simple
 
 You could also use `~/.extra` to override settings, functions and aliases from my dotfiles repository. It’s probably better to [fork this repository](https://github.com/voku/dotfiles/fork) instead, though. And you can use `~/.vimrc.extra` to edit the vim settings without touching the main configuration.
 
+## Run the tests
+
+e.g.:
+```bash
+bash .redpill/tests/functions-tests.sh
+zsh .redpill/tests/functions-tests.sh
+```
+
 ## Feedback
 
 Suggestions/improvements
@@ -78,7 +88,7 @@ Suggestions/improvements
 
 ## Thanks to…
 
-* [DrVanScott](https://github.com/DrVanScott/) and his [dotfiles repository](https://github.com/alrra/dotfiles)
+* [DrVanScott](https://github.com/DrVanScott/) and his [dotfiles repository](https://github.com/DrVanScott/dotfiles)
 * [TuxCoder](https://github.com/TuxCoder/) and his [dotfiles repository](https://github.com/tuxcoder/dotfiles)
 * [Mathias Bynens](https://github.com/mathiasbynens/) and his awesome [dotfiles repository](https://github.com/mathiasbynens/dotfiles/)
 * [@ptb and his _OS X Lion Setup_ repository](https://github.com/ptb/Mac-OS-X-Lion-Setup)

@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 __require_tool_version_compare ()
 {
   (

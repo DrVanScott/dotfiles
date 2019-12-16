@@ -480,6 +480,9 @@ if [ "$SSH_AUTH_SOCK" != "" ] && [ -f "~/.ssh/id_rsa" ] && [ -x "/usr/bin/ssh-ad
   ssh-add -l >/dev/null || alias ssh='(ssh-add -l >/dev/null || ssh-add) && unalias ssh; ssh'
 fi
 
+# keep the ssh connection open for at least two hours
+alias ssh="ssh -o \"ServerAliveInterval 60\" -o \"ServerAliveCountMax 120\""
+
 
 # ------------------------------------------------------------------------------
 # | Fun                                                                        |

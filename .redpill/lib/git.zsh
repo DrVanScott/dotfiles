@@ -36,7 +36,12 @@ parse_git_dirty()
 # Gets the difference between the local and remote branches
 git_remote_status()
 {
-    local remote ahead behind git_remote_status git_remote_status_detailed
+    local remote
+    local ahead
+    local behind
+    local git_remote_status
+    local git_remote_status_detailed
+
     remote=${$(command git rev-parse --verify ${hook_com[branch]}@{upstream} --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
     if [[ -n ${remote} ]]; then
         ahead=$(command git rev-list ${hook_com[branch]}@{upstream}..HEAD 2>/dev/null | wc -l)
@@ -72,6 +77,7 @@ git_current_branch()
   local ref
   ref=$(command git symbolic-ref --quiet HEAD 2> /dev/null)
   local ret=$?
+
   if [[ $ret != 0 ]]; then
     [[ $ret == 128 ]] && return  # no git repo.
     ref=$(command git rev-parse --short HEAD 2> /dev/null) || return
@@ -84,8 +90,9 @@ git_current_branch()
 git_commits_ahead()
 {
   if command git rev-parse --git-dir &>/dev/null; then
-    local commits="$(git rev-list --count @{upstream}..HEAD)"
-    if [[ "$commits" != 0 ]]; then
+    local commits="$(git rev-list --count @{upstream}..HEAD 2>/dev/null)"
+
+    if [[ -n "$commits" && "$commits" != 0 ]]; then
       echo "$ZSH_THEME_GIT_COMMITS_AHEAD_PREFIX$commits$ZSH_THEME_GIT_COMMITS_AHEAD_SUFFIX"
     fi
   fi
@@ -95,8 +102,9 @@ git_commits_ahead()
 git_commits_behind()
 {
   if command git rev-parse --git-dir &>/dev/null; then
-    local commits="$(git rev-list --count HEAD..@{upstream})"
-    if [[ "$commits" != 0 ]]; then
+    local commits="$(git rev-list --count HEAD..@{upstream} 2>/dev/null)"
+
+    if [[ -n "$commits" && "$commits" != 0 ]]; then
       echo "$ZSH_THEME_GIT_COMMITS_BEHIND_PREFIX$commits$ZSH_THEME_GIT_COMMITS_BEHIND_SUFFIX"
     fi
   fi
@@ -132,6 +140,7 @@ git_prompt_remote()
 git_prompt_short_sha()
 {
   local SHA
+
   SHA=$(command git rev-parse --short HEAD 2> /dev/null) && echo "$ZSH_THEME_GIT_PROMPT_SHA_BEFORE$SHA$ZSH_THEME_GIT_PROMPT_SHA_AFTER"
 }
 
@@ -139,6 +148,7 @@ git_prompt_short_sha()
 git_prompt_long_sha()
 {
   local SHA
+
   SHA=$(command git rev-parse HEAD 2> /dev/null) && echo "$ZSH_THEME_GIT_PROMPT_SHA_BEFORE$SHA$ZSH_THEME_GIT_PROMPT_SHA_AFTER"
 }
 
@@ -146,6 +156,7 @@ git_prompt_long_sha()
 git_prompt_status()
 {
   local INDEX STATUS
+
   INDEX=$(command git status --porcelain -b 2> /dev/null)
   STATUS=""
   if $(echo "$INDEX" | command grep -E '^\?\? ' &> /dev/null); then
@@ -200,7 +211,10 @@ git_prompt_status()
 # greater than the input version, respectively.
 git_compare_version()
 {
-  local INPUT_GIT_VERSION INSTALLED_GIT_VERSION
+  local INPUT_GIT_VERSION
+  local INSTALLED_GIT_VERSION
+  local i
+
   INPUT_GIT_VERSION=(${(s/./)1})
   INSTALLED_GIT_VERSION=($(command git --version 2>/dev/null))
   INSTALLED_GIT_VERSION=(${(s/./)INSTALLED_GIT_VERSION[3]})

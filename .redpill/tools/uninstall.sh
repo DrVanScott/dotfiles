@@ -1,3 +1,4 @@
+#!/bin/sh
 
 echo "Removing ~/.red-pill"
 if [[ -d ~/.red-pill ]]; then

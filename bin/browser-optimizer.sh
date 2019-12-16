@@ -65,7 +65,7 @@ dep_check()
   exit 1; }
   #command -v parallel >/dev/null 2>&1 || {
   #echo "I require parallel but it's not installed. Aborting." >&2
-  exit 1; }
+  #exit 1; }
   command -v sqlite3 >/dev/null 2>&1 || {
   echo "I require sqlite3 but it's not installed. Aborting." >&2
   exit 1; }

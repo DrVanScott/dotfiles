@@ -47,9 +47,11 @@ cdo()
 lc()
 {
   if [ $# -eq 0 ]; then
-    tr '[:upper:]' '[:lower:]'
+    python -c 'import sys; print sys.stdin.read().decode("utf-8").lower()'
   else
-    tr '[:upper:]' '[:lower:]' <<< "$@"
+    for i in "$@"; do
+        echo $i | python -c 'import sys; print sys.stdin.read().decode("utf-8").lower()'
+    done
   fi
 }
 
@@ -58,9 +60,11 @@ lc()
 uc()
 {
   if [ $# -eq 0 ]; then
-    tr '[:lower:]' '[:upper:]'
+    python -c 'import sys; print sys.stdin.read().decode("utf-8").upper()'
   else
-    tr '[:lower:]' '[:upper:]' <<< "$@"
+    for i in "$@"; do
+        echo $i | python -c 'import sys; print sys.stdin.read().decode("utf-8").upper()'
+    done
   fi
 }
 
@@ -769,7 +773,7 @@ targz()
   local tmpFile="${@%/}.tar";
   tar -cvf "${tmpFile}" --exclude=".DS_Store" "${@}" || return 1;
 
-  size=$(
+  local size=$(
     stat -f"%z" "${tmpFile}" 2> /dev/null; # OS X `stat`
     stat -c"%s" "${tmpFile}" 2> /dev/null;  # GNU `stat`
   );
@@ -790,7 +794,7 @@ targz()
   "${cmd}" -v "${tmpFile}" || return 1;
   [ -f "${tmpFile}" ] && rm "${tmpFile}";
 
-  zippedSize=$(
+  local zippedSize=$(
   	stat -f"%z" "${tmpFile}.gz" 2> /dev/null; # OS X `stat`
   	stat -c"%s" "${tmpFile}.gz" 2> /dev/null; # GNU `stat`
   );
@@ -1186,7 +1190,7 @@ note_show()
 
 # -------------------------------------------------------------------
 # print_all_colors: show all printable colors in the shell
-function print_all_colors()
+print_all_colors()
 {
   # credit to http://askubuntu.com/a/279014
   for x in 0 1 4 5 7 8; do
@@ -1314,7 +1318,10 @@ o()
 {
   local open_command=""
 
-  if gnome-open --version /dev/null > /dev/null 2>&1; then
+  if [[ $SYSTEM_TYPE == "Win10_Linux" ]]; then
+    # Windows using the Linux subsystem
+    alias open='explorer.exe'
+  elif gnome-open --version /dev/null > /dev/null 2>&1; then
     # GNOME
     open_command='gnome-open'
   elif exo-open --version /dev/null > /dev/null 2>&1; then
@@ -1330,10 +1337,10 @@ o()
     # Mac OS
     open_command='open'
   elif cygstart --version /dev/null > /dev/null 2>&1; then
-    # Cygwin
+    # Windows using Cygwin
     open_command='cygstart'
   elif [[ $SYSTEM_TYPE == "MINGW" ]]; then
-    # MinGW
+    # Windows using MinGW
     open_command='start ""'
   fi
 
@@ -1345,9 +1352,9 @@ o()
 
   # don't use nohup on OSX
   if [[ "$SYSTEM_TYPE" == "OSX" ]]; then
-    $open_command $open_command_path &>/dev/null
+    $open_command "$open_command_path" &>/dev/null
   else
-    nohup $open_command $open_command_path &>/dev/null
+    nohup $open_command "$open_command_path" &>/dev/null
   fi
 }
 
@@ -1358,7 +1365,7 @@ o()
 # small enough for one screen.
 tre()
 {
-  tree -aC -I '.git|node_modules|bower_components|.Spotlight-V100|.TemporaryItems|.DocumentRevisions-V100|.fseventsd' --dirsfirst "$@" | less -FRNX;
+  tree -haC -I '.git|node_modules|bower_components|.Spotlight-V100|.TemporaryItems|.DocumentRevisions-V100|.fseventsd' --dirsfirst "$@" | less -FRNX;
 }
 
 #-------------------------------------------------------------------

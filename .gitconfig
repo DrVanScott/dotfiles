@@ -41,7 +41,7 @@
   ap = add --patch
 
   # List aliases
-  aliases = config --get-regexp alias
+  aliases = ! git config --get-regexp ^alias\\. | sed -e s/^alias\\.// -e s/\\ /\\ =\\ /
 
   # Amend the currently staged files to the last commit
   # See`git help commit`
@@ -77,9 +77,6 @@
   # grab a change from a branch
   cp = cherry-pick -x
 
-  # Checkout a branch. Create it if it doesn't exist
-  # See`git help checkout`
-
   # Clone a repository including all submodules
   cl = clone -- recursive
 
@@ -104,9 +101,16 @@
   # diff
   d = diff                          # diff unstaged changes
   dc = diff --cached                # diff staged changes
+  da = diff HEAD                # diff unstaged and staged changes
+
+  # Show all conflicted files
+  diff-conflicted-files = diff --name-only --diff-filter=U
 
   # Show the diff between the latest commit and the current state
   diff-to-latest-commit = "!git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
+
+  # Show a commit-hash diff between two branches
+  diff-commit-hash-to-branch = "!git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative $1"
 
   # `git diff-to-x-commit $number` shows the diff between the state `$number` revisions ago and the current state
   diff-to-x-commit = "!d() { git diff --patch-with-stat HEAD~$1; }; git diff-index --quiet HEAD -- || clear; d"
@@ -156,10 +160,22 @@
   short = log --pretty=format:\"%h %cr %cn %Cgreen%s%Creset\"
   simple = log --pretty=format:\" * %s\"
   shortnocolor = log --pretty=format:\"%h %cr %cn %s\"
+  overview = log --all --oneline --no-merges
+  changelog = "!sh -c \"git log --oneline --no-merges $1..HEAD\" -"
+  filelog = log -u # show changes to a file
 
   # Pretty log of commits. Supports options of git log
   # https://www.kernel.org/pub/software/scm/git/docs/git-log.html#_pretty_formats
   log-pretty = log --graph --decorate --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an - %aE>%Creset' --abbrev-commit
+
+  # Pretty log of commits from origin/master
+  log-origin-master = log --decorate --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an - %aE>%Creset' --abbrev-commit --no-merges origin/master
+
+  times = "!git log --author=\"$(git config user.name)\" --date=iso \
+      | perl -nalE 'if (/^Date:\\s+[\\d-]{10}\\s(\\d{2})/) { say $1+0 }' \
+      | sort \
+      | uniq -c \
+      | perl -MList::Util=max -nalE '$h{$F[1]} = $F[0]; }{ $m = max values %h; foreach (0..23) { $h{$_} = 0 if not exists $h{$_} } foreach (sort {$a <=> $b } keys %h) { say sprintf \"%02d - %4d %s\", $_, $h{$_}, \"*\"x ($h{$_} / $m * 50); }'"
 
   # last commit
   last = log -1 HEAD
@@ -212,13 +228,13 @@
   # grep alias
   search = grep
 
-  # find a String in the Entire Git History
+  # find a string in the entire git history
   search-git-history = "!r() { git rev-list --all | xargs git grep -F $1; }; r"
 
   # reset
   unstage = reset HEAD              # remove files from index (tracking)
   uncommit = reset --soft HEAD^     # go back before last commit, with files in uncommitted state
-  filelog = log -u                  # show changes to a file
+
   mt = mergetool                    # fire up the merge tool
 
   # View the current working tree status using the short format
@@ -338,6 +354,8 @@
   # shifts the hunk boundary in an attempt to make the resulting
   # patch easier to read.
   compactionHeuristic = true
+
+  renamelimit = 9999
 
   color = auto
 

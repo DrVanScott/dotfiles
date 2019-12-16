@@ -1,3 +1,5 @@
+#!/bin/sh
+
 set -e
 
 if [ ! -n "$ZSH" ]; then
@@ -20,7 +22,7 @@ if [ "$SHELL" != "$(which zsh)" ]; then
   chsh -s `which zsh`
 fi
 
-echo "\n\n \033[0;32mPlease look over the ~/.zprofile file to select plugins, themes, and options.\033[0m"
+echo "\n\n \033[0;32mPlease look over the ~/.config_dotfiles file to select plugins, themes, and options.\033[0m"
 env zsh
 . ~/.zprofile
 

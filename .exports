@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export DIR_DOTFILES=$(pwd);
+
 # make vim the default editor
 export PAGER=${PAGER:-"less"}
 
@@ -75,9 +77,9 @@ export INSTALL_TYPE
 #unset MAILCHECK
 
 # prompt (bash)
-GIT_PROMPT_ONLY_IN_REPO=1
-GIT_PROMPT_FETCH_REMOTE_STATUS=0   # uncomment to avoid fetching remote status
-GIT_PROMPT_SHOW_UNTRACKED_FILES="no" # can be no, normal or all; determines counting of untracked files
+GIT_PROMPT_ONLY_IN_REPO=${GIT_PROMPT_ONLY_IN_REPO:-1}
+GIT_PROMPT_FETCH_REMOTE_STATUS=${GIT_PROMPT_FETCH_REMOTE_STATUS:-0} # uncomment to avoid fetching remote status
+GIT_PROMPT_SHOW_UNTRACKED_FILES=${GIT_PROMPT_SHOW_UNTRACKED_FILES:-"all"} # can be no, normal or all; determines counting of untracked files
 # GIT_PROMPT_SHOW_UPSTREAM=1 # uncomment to show upstream tracking branch
 # GIT_PROMPT_STATUS_COMMAND="gitstatus_pre-1.7.10.sh" # uncomment to support Git older than 1.7.10
 # GIT_PROMPT_START="..."    # uncomment for custom prompt start sequence
@@ -94,7 +96,7 @@ if [ -d "$HOME/bin" ]; then
 fi
 
 if which ruby >/dev/null 2>&1 && which gem >/dev/null 2>&1; then
-  PATH="$PATH:$(ruby -rubygems -e 'puts Gem.user_dir')/bin"
+  PATH="$PATH:$(ruby -rrubygems -e 'puts Gem.user_dir')/bin"
 fi
 
 export PATH="/usr/local/bin:/usr/sbin:/sbin:/usr/local/sbin:$PATH"

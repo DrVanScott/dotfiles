@@ -23,7 +23,7 @@ add-zsh-hook precmd precmd_update_git_vars
 ## Function definitions
 function preexec_update_git_vars() {
   case "$2" in
-    git*|hub*|gh*|stg*)
+    git*)
     __EXECUTED_GIT_COMMAND=1
     ;;
   esac
@@ -44,49 +44,46 @@ function update_current_git_vars() {
   unset __CURRENT_GIT_STATUS
 
   if [[ "$GIT_PROMPT_EXECUTABLE" == "python" ]]; then
-    local gitstatus="$__GIT_PROMPT_DIR/gitstatus.py"
-    _GIT_STATUS=`python ${gitstatus} 2>/dev/null`
+    local gitstatus="$__GIT_PROMPT_DIR/../../bin/gitstatus.py"
+    _GIT_STATUS=`python3 ${gitstatus} 2>/dev/null`
   fi
 
-  if [[ "$GIT_PROMPT_EXECUTABLE" == "haskell" ]]; then
-    _GIT_STATUS=`git status --porcelain --branch &> /dev/null | $__GIT_PROMPT_DIR/src/.bin/gitstatus`
-  fi
-
-  __CURRENT_GIT_STATUS=("${(@s: :)_GIT_STATUS}")
-	GIT_BRANCH=$__CURRENT_GIT_STATUS[1]
-	GIT_AHEAD=$__CURRENT_GIT_STATUS[2]
-	GIT_BEHIND=$__CURRENT_GIT_STATUS[3]
-	GIT_STAGED=$__CURRENT_GIT_STATUS[4]
-	GIT_CONFLICTS=$__CURRENT_GIT_STATUS[5]
-	GIT_CHANGED=$__CURRENT_GIT_STATUS[6]
-  GIT_UNTRACKED=$__CURRENT_GIT_STATUS[7]
+  __CURRENT_GIT_STATUS=(`echo ${_GIT_STATUS}`)
+  GIT_BRANCH=$__CURRENT_GIT_STATUS[1]
+  GIT_REMOTE=$__CURRENT_GIT_STATUS[2]
+  GIT_STAGED=$__CURRENT_GIT_STATUS[3]
+  GIT_CONFLICTS=$__CURRENT_GIT_STATUS[4]
+  GIT_CHANGED=$__CURRENT_GIT_STATUS[5]
+  GIT_UNTRACKED=$__CURRENT_GIT_STATUS[6]
+  GIT_CLEAN=$__CURRENT_GIT_STATUS[7]
+  GIT_STASHED=$__CURRENT_GIT_STATUS[8]
 }
 
 git_super_status() {
   if [ -n "$__CURRENT_GIT_STATUS" ]; then
-	  STATUS="$ZSH_THEME_GIT_PROMPT_PREFIX$ZSH_THEME_GIT_PROMPT_BRANCH$GIT_BRANCH%{${reset_color}%}"
-	  if [ "$GIT_BEHIND" -ne "0" ]; then
-		  STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_BEHIND$GIT_BEHIND%{${reset_color}%}"
-	  fi
-	  if [ "$GIT_AHEAD" -ne "0" ]; then
-		  STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_AHEAD$GIT_AHEAD%{${reset_color}%}"
-	  fi
-	  STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_SEPARATOR"
-	  if [ "$GIT_STAGED" -ne "0" ]; then
-		  STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_STAGED$GIT_STAGED%{${reset_color}%}"
-	  fi
-	  if [ "$GIT_CONFLICTS" -ne "0" ]; then
-		  STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CONFLICTS$GIT_CONFLICTS%{${reset_color}%}"
-	  fi
-	  if [ "$GIT_CHANGED" -ne "0" ]; then
-		  STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CHANGED$GIT_CHANGED%{${reset_color}%}"
-	  fi
-	  if [ "$GIT_UNTRACKED" -ne "0" ]; then
+    STATUS="$ZSH_THEME_GIT_PROMPT_PREFIX$ZSH_THEME_GIT_PROMPT_BRANCH$GIT_BRANCH%{${reset_color}%}"
+    if [ "$GIT_REMOTE" != "0" ]; then
+      STATUS="$STATUS$GIT_REMOTE%{${reset_color}%}"
+    fi
+    STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_SEPARATOR"
+    if [ "$GIT_STAGED" -ne "0" ]; then
+      STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_STAGED$GIT_STAGED%{${reset_color}%}"
+    fi
+    if [ "$GIT_CONFLICTS" -ne "0" ]; then
+      STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CONFLICTS$GIT_CONFLICTS%{${reset_color}%}"
+    fi
+    if [ "$GIT_CHANGED" -ne "0" ]; then
+      STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CHANGED$GIT_CHANGED%{${reset_color}%}"
+    fi
+    if [ "$GIT_STASHED" -ne "0" ]; then
+      STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_STASHED$GIT_STASHED%{${reset_color}%}"
+    fi
+    if [ "$GIT_UNTRACKED" -ne "0" ]; then
       STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_UNTRACKED$GIT_UNTRACKED%{${reset_color}%}"
-	  fi
-	  if [ "$GIT_CHANGED" -eq "0" ] && [ "$GIT_CONFLICTS" -eq "0" ] && [ "$GIT_STAGED" -eq "0" ] && [ "$GIT_UNTRACKED" -eq "0" ]; then
-		  STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CLEAN"
-	  fi
+    fi
+    if [ "$GIT_CLEAN" -ne "0" ]; then
+      STATUS="$STATUS$ZSH_THEME_GIT_PROMPT_CLEAN"
+    fi
 
     # remove end space
     STATUS="$(echo $STATUS | sed 's/ $//g' )"
@@ -102,10 +99,8 @@ ZSH_THEME_GIT_PROMPT_SUFFIX=${ZSH_THEME_GIT_PROMPT_SUFFIX:-"]"}
 ZSH_THEME_GIT_PROMPT_SEPARATOR=${ZSH_THEME_GIT_PROMPT_SEPARATOR:-"|"}
 ZSH_THEME_GIT_PROMPT_BRANCH=${ZSH_THEME_GIT_PROMPT_BRANCH:-"%{$fg_bold[magenta]%}"}
 ZSH_THEME_GIT_PROMPT_STAGED=${ZSH_THEME_GIT_PROMPT_STAGED:-"%{$fg[red]%}%{+%G%}"}
-ZSH_THEME_GIT_PROMPT_CONFLICTS=${ZSH_THEME_GIT_PROMPT_CONFLICTS:-"%{$fg[red]%}%{!!!%G%}"}
-ZSH_THEME_GIT_PROMPT_CHANGED=${ZSH_THEME_GIT_PROMPT_CHANGED:-"%{$fg[blue]%}%{*%G%}"}
-ZSH_THEME_GIT_PROMPT_BEHIND=${ZSH_THEME_GIT_PROMPT_BEHIND:-"%{${ICON_FOR_DOWN}%G%}"}
-ZSH_THEME_GIT_PROMPT_AHEAD=${ZSH_THEME_GIT_PROMPT_AHEAD:-"%{${ICON_FOR_UP}%G%}"}
-ZSH_THEME_GIT_PROMPT_UNTRACKED=${ZSH_THEME_GIT_PROMPT_UNTRACKED:-"%{?%G%}"}
+ZSH_THEME_GIT_PROMPT_CONFLICTS=${ZSH_THEME_GIT_PROMPT_CONFLICTS:-"%{$fg[red]%}%{${ICON_FOR_FALSE}%G%}"}
+ZSH_THEME_GIT_PROMPT_CHANGED=${ZSH_THEME_GIT_PROMPT_CHANGED:-"%{$fg[green]%}%{*%G%}"}
+ZSH_THEME_GIT_PROMPT_UNTRACKED=${ZSH_THEME_GIT_PROMPT_UNTRACKED:-" %{$fg[cyan]%}%{${ICON_FOR_UNTRACKED}%G%}"}
+ZSH_THEME_GIT_PROMPT_STASHED=${ZSH_THEME_GIT_PROMPT_STASHED:-"%{$fg_bold[magenta]%}%{${ICON_FOR_STASHED}%G%}"}
 ZSH_THEME_GIT_PROMPT_CLEAN=${ZSH_THEME_GIT_PROMPT_CLEAN:-"%{$fg_bold[green]%}%{${ICON_FOR_TRUE}%G%}"}
-

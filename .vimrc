@@ -88,16 +88,14 @@ set ttymouse=xterm2
 " Add the g flag to search/replace by default.
 set gdefault
 
-" Look for embedded modelines at the top of the file.
-set modeline
+" Disable modelines as a security precaution
+set modelines=0
+set nomodeline
 
 " Ignore whitespace in vimdiff.
 if &diff
   set diffopt+=iwhite
 endif
-
-" Only look at this number of lines for modeline.
-set modelines=10
 
 " Enable filetype detection.
 filetype on
