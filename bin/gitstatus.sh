@@ -11,7 +11,7 @@ else
   _ignore_submodules=
 fi
 
-gitstatus=$( LC_ALL=C git status ${_ignore_submodules} --untracked-files=${__GIT_PROMPT_SHOW_UNTRACKED_FILES:-all} --porcelain --branch )
+gitstatus=$( LC_ALL=C timeout 3 git status ${_ignore_submodules} --untracked-files=${__GIT_PROMPT_SHOW_UNTRACKED_FILES:-all} --porcelain --branch )
 
 # if the status is fatal, exit now
 [[ "$?" -ne 0 ]] && exit 0
